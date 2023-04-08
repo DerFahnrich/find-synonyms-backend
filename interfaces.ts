@@ -1,9 +1,10 @@
 export interface IWordNode {
   word: string;
-  synonyms: Set<string>;
+  synonyms: string[];
 }
 
-export interface IWordNodeDto {
+export interface ISynonyms {
   word: string;
   synonyms: string[];
+  transitiveSynonyms: string[];
 }

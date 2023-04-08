@@ -1,14 +1,12 @@
 import express, { Request, Response, Router } from "express";
-import { SynonymsGraph } from "../models/SynonymsGraph.class";
-import { WordNodesDto, WordNodesObject } from "../types";
-import { ErrorResponse } from "../models/ErrorResponse.class";
+
+import { ErrorResponse } from "../models";
+import { checkIfWordExists, getArrayOfMatchingWords, getSynonymsToWord } from "../services";
 
 export const wordController: Router = express.Router();
-const nodes = SynonymsGraph.nodes;
 
 wordController.get("", (req: Request, res: Response) => {
   const searchTerm = req.query.s as string;
-  console.log(searchTerm);
 
   if (!searchTerm) {
     return res
@@ -16,17 +14,27 @@ wordController.get("", (req: Request, res: Response) => {
       .json(new ErrorResponse("Bad request, you're missing the search term query: s", 400));
   }
 
-  const arrayOfMatchingWords: string[] = [];
-
-  for (const key in nodes) {
-    if (key.startsWith(searchTerm)) {
-      arrayOfMatchingWords.push(key);
-    }
-  }
+  const arrayOfMatchingWords = getArrayOfMatchingWords(searchTerm);
 
   if (arrayOfMatchingWords.length === 0) {
-    return res.status(404).json(new ErrorResponse("The search param yielded no results", 404));
+    return res.status(404).json(new ErrorResponse("No results for that search query", 404));
   }
 
   res.json(arrayOfMatchingWords);
+});
+
+wordController.get("/:word", (req: Request, res: Response) => {
+  const word = req.params.word;
+
+  if (!checkIfWordExists(word)) {
+    return res.status(404).json(new ErrorResponse("No results for that search", 404));
+  }
+
+  const allSynonyms = getSynonymsToWord(word);
+  
+  if (allSynonyms.synonyms.length === 0) {
+    return res.status(404).json(new ErrorResponse("No synonyms to that word were found", 404));
+  }
+
+  res.json(allSynonyms);
 });
