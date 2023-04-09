@@ -11,20 +11,26 @@ export class SynonymsGraph {
     this.nodes[word] = node;
   }
 
-  static addSynonym(word: string, synonym: string) {
-    if (!this.nodes[word]) {
-      this.addWord(word);
+  static addSynonyms(wordNode: IWordNode) {
+    const wordLowerCase = wordNode.word.toLowerCase();
+
+    if (!this.nodes[wordLowerCase]) {
+      this.addWord(wordLowerCase);
     }
-    if (!this.nodes[synonym]) {
-      this.addWord(synonym);
+
+    for (const s of wordNode.synonyms) {
+      const synonymLowercase = s.toLowerCase();
+      if (!this.nodes[synonymLowercase]) {
+        this.addWord(synonymLowercase);
+      }
+
+      this.nodes[wordLowerCase ].synonyms.push(synonymLowercase);
+      this.nodes[synonymLowercase].synonyms.push(wordLowerCase);
     }
-    this.nodes[word].synonyms.push(synonym);
-    this.nodes[synonym].synonyms.push(word);
   }
 
   static getSynonyms(word: string): string[] {
     if (this.nodes[word]) {
-      console.log(this.nodes[word].synonyms);
       return this.nodes[word].synonyms;
     } else {
       return [];

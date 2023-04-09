@@ -8,3 +8,8 @@ export interface ISynonyms {
   synonyms: string[];
   transitiveSynonyms: string[];
 }
+
+export interface ICreatedSynonyms {
+  status: string;
+  url: string;
+}
